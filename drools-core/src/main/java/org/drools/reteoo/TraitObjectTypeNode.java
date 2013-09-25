@@ -62,7 +62,10 @@ public class TraitObjectTypeNode extends ObjectTypeNode {
     public void assertObject( InternalFactHandle factHandle, PropagationContext context, InternalWorkingMemory workingMemory ) {
         if ( factHandle.getObject() instanceof TraitProxy )  {
             BitSet vetoMask = ((TraitProxy) factHandle.getObject()).getTypeFilter();
-            if ( vetoMask == null || typeMask.isEmpty() || ! HierarchyEncoderImpl.supersetOrEqualset( vetoMask, this.typeMask ) ) {
+            if ( vetoMask == null
+                    || typeMask.isEmpty()
+                    || typeMask.equals( ((TraitProxy) factHandle.getObject()).getTypeCode() )
+                    || ! HierarchyEncoderImpl.supersetOrEqualset( vetoMask, this.typeMask ) ) {
                 System.out.println( ((ClassObjectType) this.getObjectType()).getClassName() + " : Assert PASS " + ( (TraitProxy) factHandle.getObject() ).getTraitName() + " " + ( (TraitProxy) factHandle.getObject() ).getTypeCode() + " >> " + vetoMask + " checks in " + typeMask );
                 super.assertObject( factHandle, context, workingMemory );
             } else {

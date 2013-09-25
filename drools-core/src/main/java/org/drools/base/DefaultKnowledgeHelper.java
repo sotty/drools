@@ -370,7 +370,10 @@ public class DefaultKnowledgeHelper
         if ( h.isTrait() ) {
             if ( ( (TraitFactHandle) h ).isTraitable() ) {
                 // this is a traitable core object, so its traits must be updated as well
-                updateTraits( h.getObject(), mask, null, modifiedClass, null, ((TraitableBean) h.getObject()).getMostSpecificTraits()  );
+                Object obj = h.getObject();
+                if( obj instanceof TraitableBean && ! ((TraitableBean) obj).getTraits().isEmpty() ) {
+                    updateTraits( obj, mask, null, modifiedClass, null, ((TraitableBean) obj).getMostSpecificTraits()  );
+                }
             } else {
                 Thing x = (Thing) h.getObject();
                 // in case this is a proxy

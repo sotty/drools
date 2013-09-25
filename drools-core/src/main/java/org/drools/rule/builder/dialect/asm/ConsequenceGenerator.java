@@ -68,7 +68,7 @@ public class ConsequenceGenerator {
                 invokeVirtual(RuleTerminalNode.class, "getDeclarations", Declaration[].class);
                 mv.visitVarInsn(ASTORE, 4);
 
-                
+
                 LeftTuple currentLeftTuple = tuple;
                 objAstorePos = 6; // astore start position for objects to store in loop
                 int[] paramsPos = new int[declarations.length];

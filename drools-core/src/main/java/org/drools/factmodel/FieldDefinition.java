@@ -45,6 +45,7 @@ public class FieldDefinition
     private boolean            key        = false;
     private boolean            inherited  = false;
     private int                index      = -1;
+    private int                declIndex  = -1;
     private String             initExpr   = null;
     private boolean            recursive  = false;
     private Map<String,Object> metaData;
@@ -96,6 +97,7 @@ public class FieldDefinition
         this.annotations = (List<AnnotationDefinition>) in.readObject();
         this.inherited = in.readBoolean();
         this.index = in.readInt();
+        this.declIndex = in.readInt();
         this.initExpr = (String) in.readObject();
         this.metaData = (Map<String, Object>) in.readObject();
     }
@@ -103,11 +105,12 @@ public class FieldDefinition
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject( this.name );
         out.writeObject( this.type );
-        out.writeBoolean( this.key );
-        out.writeObject( this.accessor );
+        out.writeBoolean(this.key);
+        out.writeObject(this.accessor);
         out.writeObject( this.annotations );
-        out.writeBoolean( this.inherited );
-        out.writeInt( this.index );
+        out.writeBoolean(this.inherited);
+        out.writeInt(this.index);
+        out.writeInt( this.declIndex );
         out.writeObject( this.initExpr );
         out.writeObject( this.metaData );
     }
@@ -253,6 +256,14 @@ public class FieldDefinition
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public int getDeclIndex() {
+        return declIndex;
+    }
+
+    public void setDeclIndex(int declIndex) {
+        this.declIndex = declIndex;
     }
 
     public String getInitExpr() {
