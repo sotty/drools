@@ -32,7 +32,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class DefaultBeanClassBuilder implements Opcodes, BeanClassBuilder, Seria
      * @throws NoSuchFieldException
      * @throws InstantiationException
      */
-    public byte[] buildClass( ClassDefinition classDef ) throws IOException,
+    public byte[] buildClass( ClassDefinition classDef, ClassLoader classLoader ) throws IOException,
             IntrospectionException,
             SecurityException,
             IllegalArgumentException,
@@ -82,7 +81,7 @@ public class DefaultBeanClassBuilder implements Opcodes, BeanClassBuilder, Seria
             InstantiationException,
             NoSuchFieldException {
 
-        ClassWriter cw = new ClassWriter( ClassWriter.COMPUTE_MAXS );
+        ClassWriter cw = new BeanClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, classLoader );
         //ClassVisitor cw = new CheckClassAdapter(cwr);
 
         this.buildClassHeader( cw,
@@ -1876,7 +1875,42 @@ public class DefaultBeanClassBuilder implements Opcodes, BeanClassBuilder, Seria
 
     }
 
-    
+
+
+    public static class BeanClassWriter extends ClassWriter {
+
+        private ClassLoader classLoader;
+
+        public BeanClassWriter( final int flags, final ClassLoader classLoader ) {
+            super(flags);
+            this.classLoader = classLoader != null ? classLoader : getClass().getClassLoader();
+        }
+
+        @Override
+        protected String getCommonSuperClass(final String type1, final String type2) {
+            Class<?> c, d;
+            try {
+                c = Class.forName(type1.replace('/', '.'), false, classLoader);
+                d = Class.forName(type2.replace('/', '.'), false, classLoader);
+            } catch (Exception e) {
+                throw new RuntimeException(e.toString());
+            }
+            if (c.isAssignableFrom(d)) {
+                return type1;
+            }
+            if (d.isAssignableFrom(c)) {
+                return type2;
+            }
+            if (c.isInterface() || d.isInterface()) {
+                return "java/lang/Object";
+            } else {
+                do {
+                    c = c.getSuperclass();
+                } while (!c.isAssignableFrom(d));
+                return c.getName().replace('.', '/');
+            }
+        }
+    }
 
 }
 
