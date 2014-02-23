@@ -3,6 +3,7 @@ package org.drools.compiler.compiler;
 import junit.framework.Assert;
 import org.drools.core.common.EventFactHandle;
 import org.drools.core.definitions.impl.KnowledgePackageImp;
+import org.drools.core.marshalling.impl.ProtobufMessages;
 import org.drools.core.rule.TypeDeclaration;
 import org.junit.Test;
 import org.kie.api.runtime.rule.FactHandle;
@@ -15,6 +16,7 @@ import org.kie.internal.builder.ResultSeverity;
 import org.kie.api.definition.type.Annotation;
 import org.kie.api.definition.type.FactField;
 import org.kie.api.definition.type.FactType;
+import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
@@ -31,6 +33,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class TypeDeclarationTest {
 
@@ -672,4 +676,51 @@ public class TypeDeclarationTest {
 
     }
 
+
+    @Test
+    public void testDeclareFieldArray() {
+        String str1 = "" +
+                      "package org.drools " +
+
+                      "declare Test end " +
+
+                      "declare Pet " +
+                      "    owners : Owner[] " +
+                      "    twoDimArray : Foo[][] " +
+                      "    friends : Pet[] " +
+                      "end " +
+
+                      "declare Owner " +
+                      "     name : String " +
+                      "end " +
+
+                      "declare Foo end " +
+
+                      "";
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+
+        kbuilder.add( ResourceFactory.newByteArrayResource( str1.getBytes() ),
+                      ResourceType.DRL );
+
+        if ( kbuilder.hasErrors() ) {
+            fail( kbuilder.getErrors().toString() );
+        }
+
+        for( KnowledgePackage kp : kbuilder.getKnowledgePackages() ) {
+            if ( kp.getName().equals( "org.drools" ) ) {
+                Collection<FactType> types = kp.getFactTypes();
+                for ( FactType type : types ) {
+                    if ( "Pet".equals( type.getName() ) ) {
+                        assertEquals( 3, type.getFields().size() );
+                        FactField owners = type.getField( "owners" );
+                        assertTrue( owners != null && owners.getType().getSimpleName().equals( "Owner" ) && owners.getType().isArray()  );
+                        FactField twoDim = type.getField( "twoDimArray" );
+                        assertTrue( twoDim != null && twoDim.getType().getSimpleName().equals( "Foo" ) && twoDim.getType().isArray()  );
+                        FactField friends = type.getField( "friends" );
+                        assertTrue( friends != null && friends.getType().getSimpleName().equals( "Pet" ) && friends.getType().isArray()  );
+                    }
+                }
+            }
+        }
+    }
 }

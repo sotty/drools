@@ -1938,49 +1938,56 @@ public class PackageBuilder
      * declarations and previous declarations. Means that a class can't extend
      * another class declared in package that has not been loaded yet.
      *
-     * @param sup
-     *            the simple name of the superclass
+     * @param klass
+     *            the simple name of the class
      * @param packageDescr
      *            the descriptor of the package the base class is declared in
      * @param pkgRegistry
      *            the current package registry
      * @return the fully qualified name of the superclass
      */
-    private String resolveType(String sup,
+    private String resolveType(String klass,
             PackageDescr packageDescr,
             PackageRegistry pkgRegistry) {
 
+        String arraySuffix = "";
+        int arrayIndex = klass.indexOf( "[" );
+        if ( arrayIndex >= 0 ) {
+            arraySuffix = klass.substring( arrayIndex );
+            klass = klass.substring( 0, arrayIndex );
+        }
+
         //look among imports
         for (ImportDescr id : packageDescr.getImports()) {
-            if (id.getTarget().endsWith("." + sup)) {
+            String fqKlass = id.getTarget();
+            if ( fqKlass.endsWith( "." + klass ) ) {
                 //logger.info("Replace supertype " + sup + " with full name " + id.getTarget());
-                return id.getTarget();
-
+                return arrayIndex < 0 ? fqKlass : fqKlass + arraySuffix;
             }
         }
 
         //look among local declarations
         if (pkgRegistry != null) {
             for (String declaredName : pkgRegistry.getPackage().getTypeDeclarations().keySet()) {
-                if (declaredName.equals(sup))
-                    sup = pkgRegistry.getPackage().getTypeDeclaration(declaredName).getTypeClass().getName();
+                if (declaredName.equals(klass))
+                    klass = pkgRegistry.getPackage().getTypeDeclaration(declaredName).getTypeClass().getName();
             }
         }
 
-        if ((sup != null) && (!sup.contains(".")) && (packageDescr.getNamespace() != null && !packageDescr.getNamespace().isEmpty())) {
+        if ((klass != null) && (!klass.contains(".")) && (packageDescr.getNamespace() != null && !packageDescr.getNamespace().isEmpty())) {
             for (AbstractClassTypeDeclarationDescr td : packageDescr.getClassAndEnumDeclarationDescrs()) {
-                if ( sup.equals( td.getTypeName() ) ) {
+                if ( klass.equals( td.getTypeName() ) ) {
                     if ( td.getType().getFullName().contains( "." ) ) {
-                        sup = td.getType().getFullName();
+                        klass = td.getType().getFullName();
                     } else {
-                        sup = packageDescr.getNamespace() + "." + sup;
+                        klass = packageDescr.getNamespace() + "." + klass;
                     }
                 }
             }
 
         }
 
-        return sup;
+        return arrayIndex < 0 ? klass : klass + arraySuffix;
     }
 
     /**
@@ -3383,7 +3390,10 @@ public class PackageBuilder
 
             try {
                 String typeName = field.getPattern().getObjectType();
-                String fullFieldType = generatedTypes.contains(typeName) ? typeName : pkgRegistry.getTypeResolver().resolveType(typeName).getName();
+                if ( typeName.indexOf( "[" ) >= 0 ) {
+                    typeName = typeName.substring( 0, typeName.indexOf( "[" ) );
+                }
+                String fullFieldType = generatedTypes.contains( typeName ) ? typeName : pkgRegistry.getTypeResolver().resolveType(typeName).getName();
 
                 FieldDefinition fieldDef = new FieldDefinition(field.getFieldName(),
                         fullFieldType);
