@@ -710,7 +710,7 @@ public class TypeDeclarationTest {
             if ( kp.getName().equals( "org.drools" ) ) {
                 Collection<FactType> types = kp.getFactTypes();
                 for ( FactType type : types ) {
-                    if ( "Pet".equals( type.getName() ) ) {
+                    if ( "org.drools.Pet".equals( type.getName() ) ) {
                         assertEquals( 3, type.getFields().size() );
                         FactField owners = type.getField( "owners" );
                         assertTrue( owners != null && owners.getType().getSimpleName().equals( "Owner" ) && owners.getType().isArray()  );
