@@ -38,11 +38,12 @@ when
                                Double[] p = (Double[]) $distros.get( "" + $tgt );
                                double w = p[1] > 0.0 ? @{ evaluateDistribution( "$val", "Gauss" ) } : 1e-16;
                                m.set( index, w );
-                               System.out.println( $val + " >>> mu " + p[0] + " , sigma " + p[1] + " >>>>>> " + w );
+                               System.out.println( $val + " >>> mu " + p[0] + " , sigma " + p[1] + " >>>>>> " + w + " @@@ " + m );
                              ),
                        result( m )
            )
 then
+    System.out.println( " Assert BC with " + $res );
     @{ pmmlPackageName }.BayesConditional bc = new @{ pmmlPackageName }.BayesConditional( "@{name}", "@{field}", $res );
     insertLogical( bc );
 end

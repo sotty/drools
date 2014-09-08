@@ -38,6 +38,7 @@ then
 end
 
 rule "NaiveBayesEvalPosterior_@{name}"
+@@Direct
 @includeNamed{ 'rule_meta.drlt'; attributes=attributes }
 salience -20
 when
@@ -46,18 +47,23 @@ when
     $pro : java.util.List() from accumulate(
                 $tgt : @{ mapDatatype( datatype, true ) }() from $vals
                 and
-                $p : Double() from accumulate( BayesConditional( context == "@{name}", $x : counts ),
-                                        init( int index = $vals.indexOf( $tgt ); double d = (Double) $priors.get( index ); ),
-                                        action( d = d * Math.max( (Double) $x.get( index ), $thold ); ),
+                $p : Double() from accumulate( $bc : BayesConditional( context == "@{name}", $x : counts ),
+                                        init( int index = $vals.indexOf( $tgt );
+                                              double d = (Double) $priors.get( index );
+                                        ),
+                                        action( d = d * Math.max( (Double) $x.get( index ), $thold );
+                                            System.out.println( "Merged " + $x.get( index ) + " for target " + $tgt + " from  " + $bc );
+                                        ),
+                                        reverse( d = d / Math.max( (Double) $x.get( index ), $thold ); ),
                                         result( d )
-                                   )
-                                   ,
+                                   ),
                 init( java.util.List m = new java.util.ArrayList( $vals ); ),
                 action( m.set( $vals.indexOf( $tgt ), $p ); ),
                 result( m )
            )
 then
     @{ pmmlPackageName }.BayesPosterior bp = new @{ pmmlPackageName }.BayesPosterior( "@{name}", "@{field}", $pro );
+    System.out.println( "Update posteriors " + $pro + " for field  @{ field }" + bp );
     insertLogical( bp );
 end
 
@@ -96,6 +102,7 @@ when
            accumulate( $x : Double() from $wgts, $den : sumBD( $x ) )
     $val : @{ mapDatatype( datatype, true ) }() from $values
 then
+    System.out.println( "Output the field @{field}");
     @{ field } x = new @{ field }();
         x.setContext( "@{name}" );
         x.setValid( true );

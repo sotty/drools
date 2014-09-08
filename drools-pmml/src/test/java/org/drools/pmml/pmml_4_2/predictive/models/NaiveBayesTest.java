@@ -99,6 +99,12 @@ public class NaiveBayesTest extends DroolsAbstractPMMLTest {
         assertEquals( 100, a2 );
 
         checkGeneratedRules();
+        /*
+        kieSession.getEntryPoint( "in_AgeOfIndividual" ).insert( 4.0 );
+
+        kieSession.fireAllRules();
+        */
+        System.out.println( reportWMObjects( kieSession ));
 
     }
 
