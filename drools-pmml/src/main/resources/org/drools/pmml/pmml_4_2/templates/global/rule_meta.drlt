@@ -13,24 +13,8 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-}
+} @declare{'rule_meta'}  @@Generated @if{attributes['agenda-group'] != null}
+  agenda-group "@{attributes['agenda-group']}"@end{} @if{attributes['ruleflow-group'] != null}
+  ruleflow-group "@{attributes['ruleflow-group']}"@end{} @end{}
 
-@declare{'outputBinding'}
-
-
- rule "Bind @{fieldName} Output into Fact @{factType}"
- dialect "mvel"
- @includeNamed{ 'rule_meta.drlt'; attributes=attributes }
- when
-    @{compactUpperCase(fieldName)}( $val : value)
-    $x : @{factType}( @{fieldName} != $val )
- then
-    modify ( $x ) { set@{compactUpperCase(fieldName)}( $val ); }
- end
-
-@end{}
-
-
-
-@includeNamed{'outputBinding'}
-
+@includeNamed{'rule_meta'}
