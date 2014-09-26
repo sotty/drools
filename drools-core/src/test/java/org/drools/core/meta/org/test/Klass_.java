@@ -6,6 +6,8 @@ import org.drools.core.metadata.MetadataContainer;
 import org.drools.core.metadata.PropertyLiteral;
 import org.drools.core.util.ClassUtils;
 
+import java.net.URI;
+
 public class Klass_<T extends Klass> extends MetadataContainer<T> {
 
     public Klass_( T x ) {
@@ -58,7 +60,7 @@ public class Klass_<T extends Klass> extends MetadataContainer<T> {
         }
 
         public static final MetaProperty<Klass,String> prop =
-                new PropertyLiteral<Klass,String>( 0, "prop", "http://www.test.org#prop" ) {
+                new PropertyLiteral<Klass,String>( 0, "prop", URI.create( "http://www.test.org#Klass?prop" ) ) {
                     public String get( Klass o ) { return o.getProp(); }
                     public void set( Klass o, String value ) { o.setProp( value ); }
                 };
@@ -72,6 +74,13 @@ public class Klass_<T extends Klass> extends MetadataContainer<T> {
         protected void cachePropertyNames() {
             propertyNames = ClassUtils.getSettableProperties( Klass.class );
         }
+
+        @Override
+        public URI getUri() {
+            return URI.create( "http://www.test.org#Klass" );
+        }
+
     }
+
 }
 

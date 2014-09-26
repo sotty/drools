@@ -1,6 +1,6 @@
 package org.drools.core.metadata;
 
-public interface MetaClass<T> {
+public interface MetaClass<T> extends Identifiable {
 
     public MetaProperty<T,?>[] getProperties();
 

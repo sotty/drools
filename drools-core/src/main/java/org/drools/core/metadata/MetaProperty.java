@@ -1,12 +1,14 @@
 package org.drools.core.metadata;
 
-public interface MetaProperty<T,R> extends Comparable<MetaProperty<T,R>> {
+import java.net.URI;
+
+public interface MetaProperty<T,R> extends Comparable<MetaProperty<T,R>>, Identifiable {
 
     public int getIndex();
 
     public String getName();
 
-    public String getKey();
+    public URI getKey();
 
     public R get( T object );
 

@@ -9,11 +9,16 @@ import org.drools.core.meta.org.test.Klass_;
 import org.drools.core.meta.org.test.SubKlass;
 import org.drools.core.meta.org.test.SubKlassImpl;
 import org.drools.core.meta.org.test.SubKlass_;
+import org.drools.core.metadata.MetadataContainer;
+import org.drools.core.test.model.Person;
 import org.junit.Test;
+
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MetadataTest {
 
@@ -136,6 +141,33 @@ public class MetadataTest {
         assertEquals( 2, task3.getModificationMask() );
     }
 
+
+    @Test
+    public void testURIs() {
+        AnotherKlassImpl aki = new AnotherKlassImpl();
+        assertEquals( URI.create( "http://www.test.org#AnotherKlass" ), aki.get_().getMetaClassInfo().getUri() );
+        assertEquals( URI.create( "http://www.test.org#AnotherKlass?num" ), aki.get_().num.getUri() );
+
+        URI uri = AnotherKlass_.getIdentifier( aki );
+        assertEquals( URI.create( "http://www.test.org#AnotherKlass/AnotherKlassImpl/" +
+                                  System.identityHashCode( aki ) ),
+                      uri );
+
+        assertEquals( URI.create( uri.toString() + "/modify?num" ),
+                      AnotherKlass_.modify( aki ).num( 33 ).getUri() );
+
+
+        assertTrue( uri.toString().startsWith( aki.get_().getMetaClassInfo().getUri().toString() ) );
+
+    }
+
+    @Test
+    public void testURIsOnLegacyClasses() {
+        Person p = new Person();
+        URI uri = MetadataContainer.getIdentifier( p );
+
+        assertEquals( URI.create( "urn:" + p.getClass().getPackage().getName() +  "/" + p.getClass().getSimpleName() + "/" + System.identityHashCode( p ) ), uri );
+    }
 
 
     public static class Foo implements SubKlass {

@@ -3,8 +3,11 @@ package org.drools.core.meta.org.test;
 import org.drools.core.metadata.MetaClass;
 import org.drools.core.metadata.MetaProperty;
 import org.drools.core.metadata.MetadataContainer;
+import org.drools.core.metadata.MetadataHolder;
 import org.drools.core.metadata.PropertyLiteral;
 import org.drools.core.util.ClassUtils;
+
+import java.net.URI;
 
 public class AnotherKlass_<T extends AnotherKlass> extends MetadataContainer<T> {
 
@@ -57,7 +60,7 @@ public class AnotherKlass_<T extends AnotherKlass> extends MetadataContainer<T> 
         }
 
         public static final MetaProperty<AnotherKlass,Integer> num =
-                new PropertyLiteral<AnotherKlass,Integer>( 0, "num", "http://www.test.org#num" ) {
+                new PropertyLiteral<AnotherKlass,Integer>( 0, "num", URI.create( "http://www.test.org#AnotherKlass?num" ) ) {
                     public Integer get( AnotherKlass o ) { return o.getNum(); }
                     public void set( AnotherKlass o, Integer value ) { o.setNum( value ); }
                 };
@@ -72,6 +75,10 @@ public class AnotherKlass_<T extends AnotherKlass> extends MetadataContainer<T> 
             propertyNames = ClassUtils.getSettableProperties( AnotherKlass.class );
         }
 
+        @Override
+        public URI getUri() {
+            return URI.create( "http://www.test.org#AnotherKlass" );
+        }
     }
 }
 

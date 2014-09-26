@@ -5,6 +5,8 @@ import org.drools.core.metadata.MetaProperty;
 import org.drools.core.metadata.PropertyLiteral;
 import org.drools.core.util.ClassUtils;
 
+import java.net.URI;
+
 public class SubKlass_<T extends SubKlass> extends Klass_<T>  {
 
     public SubKlass_( T x ) {
@@ -62,7 +64,7 @@ public class SubKlass_<T extends SubKlass> extends Klass_<T>  {
         }
 
         public static final MetaProperty<SubKlass,Integer> subProp =
-                new PropertyLiteral<SubKlass,Integer>( 0, "subProp", "http://www.test.org#subProp" ) {
+                new PropertyLiteral<SubKlass,Integer>( 0, "subProp", URI.create( "http://www.test.org#SubKlass?subProp" ) ) {
                     public Integer get( SubKlass o ) { return o.getSubProp(); }
                     public void set( SubKlass o, Integer value ) { o.setSubProp( value ); }
                 };
@@ -75,6 +77,11 @@ public class SubKlass_<T extends SubKlass> extends Klass_<T>  {
         @Override
         protected void cachePropertyNames() {
             propertyNames = ClassUtils.getSettableProperties( SubKlass.class );
+        }
+
+        @Override
+        public URI getUri() {
+            return URI.create( "http://www.test.org#SubKlass" );
         }
 
     }
