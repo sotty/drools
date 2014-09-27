@@ -16,9 +16,14 @@
 
 package org.drools.core.common;
 
+import org.drools.core.factmodel.traits.Thing;
+import org.drools.core.factmodel.traits.TraitableBean;
 import org.kie.api.runtime.rule.FactHandle;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.drools.core.spi.Activation;
+import org.kie.internal.runtime.beliefs.Mode;
+
+import java.util.Collection;
 
 public interface InternalWorkingMemoryActions
         extends
@@ -44,4 +49,11 @@ public interface InternalWorkingMemoryActions
     public FactHandle insertLogical(Object object,
                                                boolean dynamic);
 
+    void updateTraits( InternalFactHandle h, long mask, Class<?> modifiedClass, Activation activation );
+
+    <T, K, X extends TraitableBean> Thing<K> shed( Activation activation, TraitableBean<K,X> core, Class<T> trait );
+
+    <T, K> T don( Activation activation, K core, Collection<Class<? extends Thing>> traits, boolean b, Mode[] modes );
+
+    <T, K> T don( Activation activation, K core, Class<T> trait, boolean b, Mode[] modes );
 }
