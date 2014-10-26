@@ -19,6 +19,7 @@ import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.Memory;
+import org.drools.core.common.NamedEntryPoint;
 import org.drools.core.common.NodeMemories;
 import org.drools.core.common.RightTupleSets;
 import org.drools.core.common.StreamTupleEntryQueue;
@@ -99,7 +100,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class CepEspTest extends CommonTestMethodBase {
+public class
+        CepEspTest extends CommonTestMethodBase {
     
     @Test(timeout=10000)
     public void testComplexTimestamp() {
@@ -5493,7 +5495,6 @@ public class CepEspTest extends CommonTestMethodBase {
         KieSessionConfiguration sessionConfig = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         sessionConfig.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );
 
-
         KieHelper helper = new KieHelper();
         helper.addContent(drl, ResourceType.DRL);
         KieSession ksession = helper.build(
@@ -5578,4 +5579,33 @@ public class CepEspTest extends CommonTestMethodBase {
         assertTrue( list.contains( 0 ) );
 
     }
+
+    @Test
+    public void testExpireLogicalEvent() {
+        String drl = "package org.drools; " +
+                     "declare Foo " +
+                     "  @role(event) " +
+                     "  @expires(10ms) " +
+
+                     "then " +
+                     "  insertLogical( new Foo() ); " +
+                     "end ";
+
+        KieSessionConfiguration sessionConfig = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        sessionConfig.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );
+
+        KieHelper helper = new KieHelper();
+        helper.addContent(drl, ResourceType.DRL);
+        KieSession ksession = helper.build(
+                EventProcessingOption.STREAM
+        ).newKieSession( sessionConfig, null );
+
+        ksession.fireAllRules();
+        ((PseudoClockScheduler)ksession.getSessionClock()).advanceTime( 1, TimeUnit.SECONDS );
+        ksession.fireAllRules();
+
+        assertEquals( 0, ksession.getObjects().size() );
+        assertEquals( 0, (( NamedEntryPoint) ksession.getEntryPoint( EntryPointId.DEFAULT.getEntryPointId() )).getTruthMaintenanceSystem().getEqualityKeyMap().size() );
+    }
+
 }
