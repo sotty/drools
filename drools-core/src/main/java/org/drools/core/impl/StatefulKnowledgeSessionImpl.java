@@ -1847,16 +1847,21 @@ public class StatefulKnowledgeSessionImpl extends AbstractRuntime
                 final PropagationContext context = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), PropagationContext.EXPIRATION,
                                                                                         null, null, this.factHandle);
                 ((EventFactHandle) factHandle).setExpired(true);
-                this.node.retractObject(factHandle,
-                                        context,
-                                        workingMemory);
+                if ( factHandle.getEqualityKey() == null || factHandle.getEqualityKey().getLogicalFactHandle() != factHandle ) {
+                    this.node.retractObject(factHandle,
+                                            context,
+                                            workingMemory);
 
-                context.evaluateActionQueue(workingMemory);
-                // if no activations for this expired event
-                if (((EventFactHandle) factHandle).getActivationsCount() == 0) {
-                    // remove it from the object store and clean up resources
-                    ((EventFactHandle) factHandle).getEntryPoint().retract(factHandle);
+                    context.evaluateActionQueue(workingMemory);
+                    // if no activations for this expired event
+                    if (((EventFactHandle) factHandle).getActivationsCount() == 0) {
+                        // remove it from the object store and clean up resources
+                        ((EventFactHandle) factHandle).getEntryPoint().retract(factHandle);
+                    }
+                } else {
+                    ((NamedEntryPoint) factHandle.getEntryPoint()).getTruthMaintenanceSystem().delete( factHandle );
                 }
+
                 context.evaluateActionQueue(workingMemory);
             }
 
