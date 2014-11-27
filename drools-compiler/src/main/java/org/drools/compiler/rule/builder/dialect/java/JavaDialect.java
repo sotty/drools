@@ -98,7 +98,7 @@ public class JavaDialect
     private final static String                        EXPRESSION_DIALECT_NAME       = "mvel";
 
     // builders
-    protected static final PatternBuilder              PATTERN_BUILDER               = new PatternBuilder();
+    protected static       PatternBuilder              PATTERN_BUILDER               = new PatternBuilder();
     protected static final QueryBuilder                QUERY_BUILDER                 = new QueryBuilder();
     protected static final SalienceBuilder             SALIENCE_BUILDER              = new MVELSalienceBuilder();
     protected static final EnabledBuilder              ENABLED_BUILDER               = new MVELEnabledBuilder();
@@ -666,4 +666,7 @@ public class JavaDialect
         return this.packageRegistry;
     }
 
+    public static void setPatternBuilder( PatternBuilder patternBuilder ) {
+        PATTERN_BUILDER = patternBuilder;
+    }
 }

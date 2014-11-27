@@ -76,18 +76,27 @@ public class DefaultBetaConstraints
         this.indexPrecedenceOption = conf.getIndexPrecedenceOption();
     }
 
-    public DefaultBetaConstraints cloneIfInUse() {
-        if (constraints[0] instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraints[0]).setInUse()) {
-            BetaNodeFieldConstraint[] clonedConstraints = new BetaNodeFieldConstraint[constraints.length];
-            for (int i = 0; i < constraints.length; i++) {
-                clonedConstraints[i] = constraints[i].cloneIfInUse();
+    public DefaultBetaConstraints cloneIfInUse( int forNode ) {
+        if (constraints[0] instanceof MutableTypeConstraint ) {
+            if ( ((MutableTypeConstraint)constraints[0]).setInUse()) {
+                BetaNodeFieldConstraint[] clonedConstraints = new BetaNodeFieldConstraint[ constraints.length ];
+                for ( int i = 0; i < constraints.length; i++ ) {
+                    clonedConstraints[ i ] = constraints[ i ].cloneIfInUse( forNode );
+                }
+                DefaultBetaConstraints clone = new DefaultBetaConstraints();
+                clone.constraints = clonedConstraints;
+                clone.disableIndexing = disableIndexing;
+                clone.indexPrecedenceOption = indexPrecedenceOption;
+                clone.indexed = indexed;
+                return clone;
+            } else {
+                MutableTypeConstraint mtc;
+                for ( int i = 0; i < constraints.length; i++ ) {
+                    mtc = (MutableTypeConstraint) constraints[ i ];
+                    mtc.setInUse();
+                    mtc.setOwningNodeId( forNode );
+                }
             }
-            DefaultBetaConstraints clone = new DefaultBetaConstraints();
-            clone.constraints = clonedConstraints;
-            clone.disableIndexing = disableIndexing;
-            clone.indexPrecedenceOption = indexPrecedenceOption;
-            clone.indexed = indexed;
-            return clone;
         }
         return this;
     }

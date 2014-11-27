@@ -55,9 +55,9 @@ public class TripleNonIndexSkipBetaConstraints
         this.constraint2 = constraint[2];
     }
 
-    public TripleNonIndexSkipBetaConstraints cloneIfInUse() {
+    public TripleNonIndexSkipBetaConstraints cloneIfInUse( int forNode ) {
         if (constraint0 instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraint0).setInUse()) {
-            return new TripleNonIndexSkipBetaConstraints(constraints.cloneIfInUse());
+            return new TripleNonIndexSkipBetaConstraints(constraints.cloneIfInUse( forNode ));
         }
         return this;
     }

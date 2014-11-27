@@ -486,7 +486,7 @@ public abstract class BetaNode extends LeftTupleSource
     }
     
     public void setConstraints(BetaConstraints constraints) {
-        this.constraints = constraints.cloneIfInUse();
+        this.constraints = constraints.cloneIfInUse( this.getId() );
     }
     
 

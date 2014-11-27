@@ -39,6 +39,8 @@ public abstract class MutableTypeConstraint
 
     private transient AtomicBoolean inUse = new AtomicBoolean(false);
 
+    private int owningNodeId;
+
     public void setType( ConstraintType type ) {
         this.type = type;
     }
@@ -57,16 +59,26 @@ public abstract class MutableTypeConstraint
 
     public abstract MutableTypeConstraint clone();
 
-    public MutableTypeConstraint cloneIfInUse() {
+    public MutableTypeConstraint cloneIfInUse( int forNode ) {
         if (inUse.compareAndSet(false, true)) {
+            this.owningNodeId = forNode;
             return this;
         }
         MutableTypeConstraint clone = clone();
         clone.inUse.set(true);
+        clone.owningNodeId = forNode;
         return clone;
     }
 
     public boolean setInUse() {
         return inUse.getAndSet(true);
+    }
+
+    public int getOwningNodeId() {
+        return owningNodeId;
+    }
+
+    public void setOwningNodeId( int owningNodeId ) {
+        this.owningNodeId = owningNodeId;
     }
 }

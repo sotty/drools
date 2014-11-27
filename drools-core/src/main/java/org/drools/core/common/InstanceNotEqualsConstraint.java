@@ -71,6 +71,11 @@ public class InstanceNotEqualsConstraint
         return false;
     }
 
+    @Override
+    public int getOwningNodeId() {
+        return -1;
+    }
+
     public ContextEntry createContextEntry() {
         return new InstanceNotEqualsConstraintContextEntry( this.otherPattern );
     }
@@ -178,7 +183,7 @@ public class InstanceNotEqualsConstraint
         }
     }
 
-    public BetaNodeFieldConstraint cloneIfInUse() {
+    public BetaNodeFieldConstraint cloneIfInUse( int forNode ) {
         return this;
     }
 }

@@ -96,9 +96,9 @@ public class SingleBetaConstraints
         out.writeBoolean(indexed);
     }
 
-    public SingleBetaConstraints cloneIfInUse() {
+    public SingleBetaConstraints cloneIfInUse( int forNode ) {
         if (constraint instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraint).setInUse()) {
-            SingleBetaConstraints clone = new SingleBetaConstraints(constraint.cloneIfInUse(), null, disableIndex);
+            SingleBetaConstraints clone = new SingleBetaConstraints(constraint.cloneIfInUse( forNode ), null, disableIndex);
             clone.indexed = indexed;
             return clone;
         }

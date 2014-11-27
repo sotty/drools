@@ -34,13 +34,13 @@ public class DRLExprParserTest extends TestCase {
 
     DrlExprParser parser;
 
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         new EvaluatorRegistry();
         this.parser = new DrlExprParser(LanguageLevelOption.DRL5);
     }
 
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         this.parser = null;
         super.tearDown();
     }

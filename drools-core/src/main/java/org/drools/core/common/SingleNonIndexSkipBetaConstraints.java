@@ -45,9 +45,9 @@ public class SingleNonIndexSkipBetaConstraints
 
     }
 
-    public SingleNonIndexSkipBetaConstraints cloneIfInUse() {
+    public SingleNonIndexSkipBetaConstraints cloneIfInUse( int forNode ) {
         if (constraint instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraint).setInUse()) {
-            return new SingleNonIndexSkipBetaConstraints(constraints.cloneIfInUse());
+            return new SingleNonIndexSkipBetaConstraints(constraints.cloneIfInUse( forNode ));
         }
         return this;
     }

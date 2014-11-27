@@ -82,6 +82,11 @@ public class TupleStartEqualsConstraint
         return false;
     }
 
+    @Override
+    public int getOwningNodeId() {
+        return -1;
+    }
+
     public ContextEntry createContextEntry() {
         return new TupleStartEqualsConstraintContextEntry();
     }
@@ -183,7 +188,7 @@ public class TupleStartEqualsConstraint
         return ConstraintType.BETA;
     }
 
-    public BetaNodeFieldConstraint cloneIfInUse() {
+    public BetaNodeFieldConstraint cloneIfInUse( int forNode ) {
         return this;
     }
 }

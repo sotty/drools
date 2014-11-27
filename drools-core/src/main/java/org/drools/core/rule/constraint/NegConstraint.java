@@ -39,7 +39,7 @@ public class NegConstraint implements AlphaNodeFieldConstraint {
     }
 
 
-    public AlphaNodeFieldConstraint cloneIfInUse() {
+    public AlphaNodeFieldConstraint cloneIfInUse( int forNode ) {
         if (inUse.compareAndSet(false, true)) {
             return this;
         }
@@ -73,6 +73,11 @@ public class NegConstraint implements AlphaNodeFieldConstraint {
     @Override
     public boolean isTemporal() {
         return false;
+    }
+
+    @Override
+    public int getOwningNodeId() {
+        return -1;
     }
 
     public boolean setInUse() {

@@ -558,11 +558,22 @@ public class PatternBuilder
         combineConstraints(context, pattern, mvelCtx);
     }
 
-    private void combineConstraints(RuleBuildContext context, Pattern pattern, MVELDumper.MVELDumperContext mvelCtx) {
+    protected void combineConstraints(RuleBuildContext context, Pattern pattern, MVELDumper.MVELDumperContext mvelCtx) {
         List<MvelConstraint> combinableConstraints = pattern.getCombinableConstraints();
 
+        Constraint combinedConstraint = getCombinedConstraint( context, pattern, mvelCtx, " && ", combinableConstraints );
+        if ( combinedConstraint != null ) {
+            pattern.addConstraint( combinedConstraint );
+        }
+    }
+
+    protected Constraint getCombinedConstraint( RuleBuildContext context,
+                                                Pattern pattern,
+                                                MVELDumper.MVELDumperContext mvelCtx,
+                                                String connective,
+                                                List<MvelConstraint> combinableConstraints ) {
         if (combinableConstraints == null || combinableConstraints.size() < 2) {
-            return;
+            return null;
         }
 
         List<Declaration> declarations = new ArrayList<Declaration>();
@@ -577,7 +588,7 @@ public class PatternBuilder
                 packageNames = constraint.getPackageNames();
                 isFirst = false;
             } else {
-                expressionBuilder.append(" && ");
+                expressionBuilder.append( connective );
             }
             String constraintExpression = constraint.getExpression();
             boolean isComplex = constraintExpression.contains("&&") || constraintExpression.contains("||");
@@ -604,7 +615,7 @@ public class PatternBuilder
                                                                                              compilationUnit,
                                                                                              IndexUtil.ConstraintType.UNKNOWN,
                                                                                              null, null, false );
-        pattern.addConstraint(combinedConstraint);
+        return combinedConstraint;
     }
 
     protected void processPositional( final RuleBuildContext context,

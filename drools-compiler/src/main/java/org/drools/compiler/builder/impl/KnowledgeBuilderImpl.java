@@ -2214,6 +2214,14 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
                 normalizeAnnotations(typeFieldDescr, typeResolver, isStrict);
             }
         }
+
+        for (EnumDeclarationDescr enumDeclarationDescr : packageDescr.getEnumDeclarations()) {
+            normalizeAnnotations(enumDeclarationDescr, typeResolver, isStrict);
+            for (TypeFieldDescr typeFieldDescr : enumDeclarationDescr.getFields().values()) {
+                normalizeAnnotations(typeFieldDescr, typeResolver, isStrict);
+            }
+        }
+
     }
 
     public void normalizeRuleAnnotations(PackageDescr packageDescr) {

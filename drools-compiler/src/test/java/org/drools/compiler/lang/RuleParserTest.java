@@ -73,14 +73,14 @@ public class RuleParserTest extends TestCase {
     private DRLParser parser;
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
         // initializes pluggable operators
         new EvaluatorRegistry();
     }
 
     @After
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
     }
 

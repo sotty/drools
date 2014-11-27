@@ -315,7 +315,7 @@ public class IsAEvaluatorDefinition implements EvaluatorDefinition {
 
 
 
-        private boolean compare( Object source, Object target, InternalWorkingMemory workingMemory ) {
+        protected boolean compare( Object source, Object target, InternalWorkingMemory workingMemory ) {
             BitSet sourceTraits = null;
             BitSet targetTraits = null;
             if ( source instanceof Thing ) {

@@ -35,5 +35,5 @@ public interface BetaNodeFieldConstraint
     /**
      * Clone this constraints only if it is already used by a different node, otherwise returns this
      */
-    BetaNodeFieldConstraint cloneIfInUse();
+    BetaNodeFieldConstraint cloneIfInUse( int forNode );
 }

@@ -54,15 +54,24 @@ public class TripleBetaConstraints extends MultipleBetaConstraint {
         super(constraints, indexPrecedenceOption, disableIndexing);
     }
 
-    public TripleBetaConstraints cloneIfInUse() {
-        if (constraints[0] instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraints[0]).setInUse()) {
-            BetaNodeFieldConstraint[] clonedConstraints = new BetaNodeFieldConstraint[constraints.length];
-            for (int i = 0; i < constraints.length; i++) {
-                clonedConstraints[i] = constraints[i].cloneIfInUse();
+    public TripleBetaConstraints cloneIfInUse( int forNode ) {
+        if (constraints[0] instanceof MutableTypeConstraint ) {
+            if ( ( (MutableTypeConstraint)constraints[0] ).setInUse() ) {
+                BetaNodeFieldConstraint[] clonedConstraints = new BetaNodeFieldConstraint[ constraints.length ];
+                for ( int i = 0; i < constraints.length; i++ ) {
+                    clonedConstraints[ i ] = constraints[ i ].cloneIfInUse( forNode );
+                }
+                TripleBetaConstraints clone = new TripleBetaConstraints( clonedConstraints, indexPrecedenceOption, disableIndexing );
+                clone.indexed = indexed;
+                return clone;
+            } else {
+                MutableTypeConstraint mtc;
+                for ( int i = 0; i < constraints.length; i++ ) {
+                    mtc = (MutableTypeConstraint) constraints[ i ];
+                    mtc.setInUse();
+                    mtc.setOwningNodeId( forNode );
+                }
             }
-            TripleBetaConstraints clone = new TripleBetaConstraints(clonedConstraints, indexPrecedenceOption, disableIndexing);
-            clone.indexed = indexed;
-            return clone;
         }
         return this;
     }

@@ -32,5 +32,5 @@ public interface AlphaNodeFieldConstraint
     /**
      * Clone this constraints only if it is already used by a different node, otherwise returns this
      */
-    AlphaNodeFieldConstraint cloneIfInUse();
+    AlphaNodeFieldConstraint cloneIfInUse( int forNode );
 }

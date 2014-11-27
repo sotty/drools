@@ -67,7 +67,13 @@ public interface Constraint
      * @return
      */
     public boolean isTemporal();
-    
+
+    /**
+     *
+     * @return the ID of the node using this constraint
+     */
+    public int getOwningNodeId();
+
     /**
      * An enum for Constraint Types
      */

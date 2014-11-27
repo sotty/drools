@@ -56,9 +56,9 @@ public class QuadroupleNonIndexSkipBetaConstraints
         this.constraint3 = constraint[3];
     }
 
-    public QuadroupleNonIndexSkipBetaConstraints cloneIfInUse() {
+    public QuadroupleNonIndexSkipBetaConstraints cloneIfInUse( int forNode ) {
         if (constraint0 instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraint0).setInUse()) {
-            return new QuadroupleNonIndexSkipBetaConstraints(constraints.cloneIfInUse());
+            return new QuadroupleNonIndexSkipBetaConstraints(constraints.cloneIfInUse( forNode ));
         }
         return this;
     }

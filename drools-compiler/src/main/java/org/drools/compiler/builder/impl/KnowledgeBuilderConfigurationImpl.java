@@ -595,7 +595,7 @@ public class KnowledgeBuilderConfigurationImpl
         }
     }
 
-    private void buildEvaluatorRegistry() {
+    protected void buildEvaluatorRegistry() {
         this.evaluatorRegistry = new EvaluatorRegistry(getClassLoader());
         Map<String, String> temp = new HashMap<String, String>();
         this.chainedProperties.mapStartsWith(temp,

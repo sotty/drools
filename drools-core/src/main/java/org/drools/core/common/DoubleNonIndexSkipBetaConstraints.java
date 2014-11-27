@@ -51,9 +51,9 @@ public class DoubleNonIndexSkipBetaConstraints
         this.constraint1 = constraint[1];
     }
 
-    public DoubleNonIndexSkipBetaConstraints cloneIfInUse() {
+    public DoubleNonIndexSkipBetaConstraints cloneIfInUse( int forNode ) {
         if (constraint0 instanceof MutableTypeConstraint && ((MutableTypeConstraint)constraint0).setInUse()) {
-            return new DoubleNonIndexSkipBetaConstraints(constraints.cloneIfInUse());
+            return new DoubleNonIndexSkipBetaConstraints(constraints.cloneIfInUse( forNode ));
         }
         return this;
     }

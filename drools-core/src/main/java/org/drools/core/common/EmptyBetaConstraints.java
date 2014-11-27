@@ -49,7 +49,7 @@ public class EmptyBetaConstraints
     public EmptyBetaConstraints() {
     }
 
-    public EmptyBetaConstraints cloneIfInUse() {
+    public EmptyBetaConstraints cloneIfInUse( int forNode ) {
         return this;
     }
 

@@ -98,6 +98,11 @@ public class QueryNameConstraint implements
         return false;
     }
 
+    @Override
+    public int getOwningNodeId() {
+        return -1;
+    }
+
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         readAccessor = (InternalReadAccessor) in.readObject();
         queryName = (String) in.readObject();
@@ -109,7 +114,7 @@ public class QueryNameConstraint implements
     }
 
     @Override
-    public QueryNameConstraint cloneIfInUse() {
+    public QueryNameConstraint cloneIfInUse( int forNode ) {
         return this;
     }
 
