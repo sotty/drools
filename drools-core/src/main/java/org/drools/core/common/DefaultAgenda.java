@@ -311,7 +311,7 @@ public class DefaultAgenda
 
     @Override
     public void addQueryAgendaItem(RuleAgendaItem item) {
-        queries.putIfAbsent( (QueryImpl) item.getRule(), item );
+        queries.putIfAbsent((QueryImpl) item.getRule(), item);
         if ( log.isTraceEnabled() ) {
             log.trace("Added {} to query evaluation list.", item.getRule().getName() );
         }

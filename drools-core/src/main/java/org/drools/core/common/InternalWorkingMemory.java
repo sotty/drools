@@ -66,6 +66,8 @@ public interface InternalWorkingMemory
 
     public void executeQueuedActions();
 
+    void executeQueuedActions(boolean flushPropagations);
+
     public void queueWorkingMemoryAction(final WorkingMemoryAction action);
 
     public FactHandleFactory getFactHandleFactory();

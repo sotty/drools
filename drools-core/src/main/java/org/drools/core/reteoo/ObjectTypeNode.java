@@ -286,6 +286,16 @@ public class ObjectTypeNode extends ObjectSource
             dirty = false;
         }
 
+        if (factHandle.getObject() == InitialFactImpl.getInstance()) {
+            propagateAssert(factHandle, context, workingMemory);
+        }
+
+        if ( context.getReaderContext() == null && this.objectType.isEvent() && this.expirationOffset >= 0 && this.expirationOffset != Long.MAX_VALUE ) {
+            scheduleExpiration(context, workingMemory, factHandle, expirationOffset, new WorkingMemoryReteExpireAction( factHandle, this ));
+        }
+    }
+
+    public void propagateAssert(InternalFactHandle factHandle, PropagationContext context, InternalWorkingMemory workingMemory) {
         if (compiledNetwork != null) {
             compiledNetwork.assertObject(factHandle,
                                          context,
@@ -294,10 +304,6 @@ public class ObjectTypeNode extends ObjectSource
             this.sink.propagateAssertObject(factHandle,
                                             context,
                                             workingMemory);
-        }
-
-        if ( context.getReaderContext() == null && this.objectType.isEvent() && this.expirationOffset >= 0 && this.expirationOffset != Long.MAX_VALUE ) {
-            scheduleExpiration(context, workingMemory, factHandle, expirationOffset, new WorkingMemoryReteExpireAction( factHandle, this ));
         }
     }
 

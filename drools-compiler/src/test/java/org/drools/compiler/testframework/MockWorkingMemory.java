@@ -106,6 +106,11 @@ public class MockWorkingMemory implements InternalWorkingMemory {
         
     }
 
+    public void executeQueuedActions(boolean flushPropagations) {
+        // TODO Auto-generated method stub
+
+    }
+
     public FactHandle getFactHandleByIdentity(Object object) {
         // TODO Auto-generated method stub
         return null;

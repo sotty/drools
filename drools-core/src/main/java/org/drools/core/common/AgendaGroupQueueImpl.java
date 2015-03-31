@@ -92,10 +92,6 @@ public class AgendaGroupQueueImpl
         }
     }
 
-    public BinaryHeapQueue getBinaryHeapQueue() {
-        return this.priorityQueue;
-    }
-
     /* (non-Javadoc)
      * @see org.kie.spi.AgendaGroup#getName()
      */
