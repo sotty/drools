@@ -1096,7 +1096,7 @@ public class TraitFieldsAndLegacyClassesTest extends CommonTestMethodBase {
         assertEquals( 1, list.size() );
     }
 
-    @Test
+    @Test(timeout = 10000L)
     public void testTraitWithPositionArgs(){
 
         String drl = "" +

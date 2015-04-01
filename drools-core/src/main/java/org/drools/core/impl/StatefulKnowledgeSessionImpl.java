@@ -1573,7 +1573,7 @@ public class StatefulKnowledgeSessionImpl extends AbstractRuntime
     public void executeQueuedActions(boolean flushPropagations) {
         try {
             startOperation();
-            if (flushPropagations) {
+            if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE && flushPropagations) {
                 flushPropagations();
             }
             if ( evaluatingActionQueue.compareAndSet( false,
@@ -2225,6 +2225,8 @@ public class StatefulKnowledgeSessionImpl extends AbstractRuntime
     }
 
     private final PropagationList propagationList = new PropagationList();
+
+    public static final boolean IS_MULTITHREAD_MODE = true;
 
     public void addPropagation(PropagationEntry propagationEntry) {
         propagationList.addEntry(propagationEntry);

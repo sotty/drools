@@ -31,6 +31,7 @@ import org.drools.core.reteoo.JoinNode;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathMemory;
 import org.drools.core.reteoo.Rete;
+import org.drools.core.reteoo.ReteDumper;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.rule.TypeDeclaration;
 import org.drools.core.spi.ObjectType;
@@ -5610,6 +5611,63 @@ public class CepEspTest extends CommonTestMethodBase {
         KieHelper helper = new KieHelper();
         helper.addContent(drl, ResourceType.DRL);
         KieSession ksession = helper.build(EventProcessingOption.STREAM).newKieSession(sessionConfig, null);
+
+        ReteDumper.dumpRete(ksession);
+
+        List<Integer> list = new ArrayList<Integer>();
+        ksession.setGlobal("list", list);
+
+        ksession.insert("Alice");
+        ksession.fireAllRules();
+        assertTrue(list.isEmpty());
+
+        ((PseudoClockScheduler) ksession.getSessionClock()).advanceTime(150, TimeUnit.MILLISECONDS);
+
+        ksession.fireAllRules();
+        assertEquals(1, list.size());
+        assertEquals(1, (int) list.get(0));
+    }
+
+    @Test
+    public void test2TimersWith2Rules() throws InterruptedException {
+        String drl = "package org.drools " +
+
+                     "global java.util.List list; " +
+
+                     "declare  Msg " +
+                     "    @role( event ) " +
+                     "    sender : String  @key " +
+                     "end " +
+
+                     "rule Init " +
+                     "when " +
+                     "  $s : String() " +
+                     "then " +
+                     "  insert( new Msg( $s ) ); " +
+                     "end " +
+
+                     "rule 'Viol1' when " +
+                     "    $trigger : Msg( 'Alice' ; )\n" +
+                     "    not Msg( 'Bob' ; this after[0, 100ms] $trigger ) \n" +
+                     "    not Msg( 'Charles' ; this after[0, 200ms] $trigger )\n" +
+                     "then\n" +
+                     "  list.add( 0 );\n" +
+                     "end\n" +
+                     "rule 'Viol2' when " +
+                     "    $trigger : Msg( 'Alice' ; )\n" +
+                     "    not Msg( 'Bob' ; this after[0, 100ms] $trigger ) \n" +
+                     "then\n" +
+                     "  list.add( 1 );\n" +
+                     "end\n";
+
+        KieSessionConfiguration sessionConfig = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        sessionConfig.setOption(ClockTypeOption.get(ClockType.PSEUDO_CLOCK.getId()));
+
+        KieHelper helper = new KieHelper();
+        helper.addContent(drl, ResourceType.DRL);
+        KieSession ksession = helper.build(EventProcessingOption.STREAM).newKieSession(sessionConfig, null);
+
+        ReteDumper.dumpRete(ksession);
 
         List<Integer> list = new ArrayList<Integer>();
         ksession.setGlobal("list", list);

@@ -18,6 +18,7 @@ package org.drools.core.reteoo;
 
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.common.EventFactHandle;
+import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.InternalWorkingMemoryEntryPoint;
@@ -266,7 +267,10 @@ public class EntryPointNode extends ObjectSource
             }
         }
 
-        ((StatefulKnowledgeSessionImpl)workingMemory).addPropagation(new PropagationEntry.Insert(cachedNodes, handle, context));
+        if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE && cachedNodes.length > 0) {
+            ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(cachedNodes, handle, context));
+            ((InternalAgenda)workingMemory.getAgenda()).notifyHalt();
+        }
     }
 
 
@@ -278,7 +282,11 @@ public class EntryPointNode extends ObjectSource
             log.trace( "Update {}", handle.toString()  );
         }
 
-        ((StatefulKnowledgeSessionImpl)wm).addPropagation(new PropagationEntry.Update(this, handle, pctx, objectTypeConf));
+        if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE) {
+            ((StatefulKnowledgeSessionImpl) wm).addPropagation(new PropagationEntry.Update(this, handle, pctx, objectTypeConf));
+        } else {
+            propagateModify(handle, pctx, objectTypeConf, wm);
+        }
     }
 
     public void propagateModify(InternalFactHandle handle, PropagationContext pctx, ObjectTypeConf objectTypeConf, InternalWorkingMemory wm) {
@@ -388,7 +396,11 @@ public class EntryPointNode extends ObjectSource
             log.trace( "Delete {}", handle.toString()  );
         }
 
-        ((StatefulKnowledgeSessionImpl)workingMemory).addPropagation(new PropagationEntry.Delete(this, handle, context, objectTypeConf));
+        if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE) {
+            ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Delete(this, handle, context, objectTypeConf));
+        } else {
+            propagateRetract(handle, context, objectTypeConf, workingMemory);
+        }
     }
 
     public void propagateRetract(InternalFactHandle handle, PropagationContext context, ObjectTypeConf objectTypeConf, InternalWorkingMemory workingMemory) {

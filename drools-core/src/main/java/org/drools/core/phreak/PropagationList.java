@@ -17,4 +17,9 @@ public class PropagationList {
             list.removeFirst().propgate(workingMemory);
         }
     }
+
+    @Override
+    public String toString() {
+        return list.toString();
+    }
 }

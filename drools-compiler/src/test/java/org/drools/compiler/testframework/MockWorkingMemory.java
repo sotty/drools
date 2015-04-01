@@ -378,6 +378,12 @@ public class MockWorkingMemory implements InternalWorkingMemory {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
+    public void flushPropagations() {
+        // TODO Auto-generated method stub
+
+    }
+
     public void addEventListener(RuleRuntimeEventListener listener) {
         // TODO Auto-generated method stub
         

@@ -29,6 +29,7 @@ import org.drools.core.common.InternalWorkingMemoryEntryPoint;
 import org.drools.core.common.Memory;
 import org.drools.core.common.MemoryFactory;
 import org.drools.core.common.UpdateContext;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl.WorkingMemoryReteExpireAction;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
@@ -286,7 +287,7 @@ public class ObjectTypeNode extends ObjectSource
             dirty = false;
         }
 
-        if (factHandle.getObject() == InitialFactImpl.getInstance()) {
+        if (!StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE || factHandle.getObject() == InitialFactImpl.getInstance()) {
             propagateAssert(factHandle, context, workingMemory);
         }
 

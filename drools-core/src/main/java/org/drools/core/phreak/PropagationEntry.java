@@ -27,6 +27,11 @@ public interface PropagationEntry {
                 otns[i].propagateAssert(handle, context, wm);
             }
         }
+
+        @Override
+        public String toString() {
+            return "Insertion of " + handle.getObject();
+        }
     }
 
     public static class Update implements PropagationEntry {
