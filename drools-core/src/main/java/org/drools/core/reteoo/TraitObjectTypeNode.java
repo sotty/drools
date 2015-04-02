@@ -60,20 +60,13 @@ public class TraitObjectTypeNode extends ObjectTypeNode {
 
 
     @Override
-    public void assertObject( InternalFactHandle factHandle, PropagationContext context, InternalWorkingMemory workingMemory ) {
+    public boolean isAssertAllowed( InternalFactHandle factHandle ) {
         if ( factHandle.getObject() instanceof TraitProxy )  {
             BitSet vetoMask = ((TraitProxy) factHandle.getObject()).getTypeFilter();
             boolean isVetoed = vetoMask != null && ! typeMask.isEmpty() && HierarchyEncoderImpl.supersetOrEqualset( vetoMask, this.typeMask );
-            if ( ! isVetoed || sameAndNotCoveredByDescendants( (TraitProxy) factHandle.getObject(), typeMask ) ) {
-//                System.out.println( ((ClassObjectType) this.getObjectType()).getClassName() + " : Assert PASS " + ( (TraitProxy) factHandle.getObject() ).getTraitName() + " " + ( (TraitProxy) factHandle.getObject() ).getTypeCode() + " >> " + vetoMask + " checks in " + typeMask );
-                super.assertObject( factHandle, context, workingMemory );
-            } else {
-//                System.out.println( ( (ClassObjectType) this.getObjectType() ).getClassName() + " : Assert BLOCK " + ( (TraitProxy) factHandle.getObject() ).getTraitName() + " >> " + vetoMask + " checks in " + typeMask );
-            }
-        } else {
-            super.assertObject( factHandle, context, workingMemory );
+            return ! isVetoed || sameAndNotCoveredByDescendants( (TraitProxy) factHandle.getObject(), typeMask );
         }
-
+        return true;
     }
 
     /**

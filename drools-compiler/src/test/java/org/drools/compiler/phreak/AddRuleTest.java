@@ -372,6 +372,7 @@ public class AddRuleTest {
 
         wm.insert(new E(1));
         wm.insert(new E(2));
+        wm.flushPropagations();
 
         RuleTerminalNode rtn1 = getRtn( "r1", kbase1 );
         RuleTerminalNode rtn2 = getRtn( "r2", kbase1 );
@@ -424,6 +425,7 @@ public class AddRuleTest {
 
         wm.insert(new D(1));
         wm.insert(new D(2));
+        wm.flushPropagations();
 
         RuleTerminalNode rtn1 = getRtn( "r1", kbase1 );
         RuleTerminalNode rtn2 = getRtn( "r2", kbase1 );
@@ -495,6 +497,7 @@ public class AddRuleTest {
 
         wm.insert(new D(1));
         wm.insert(new D(2));
+        wm.flushPropagations();
 
         RuleTerminalNode rtn1 = getRtn( "r1", kbase1 );
 

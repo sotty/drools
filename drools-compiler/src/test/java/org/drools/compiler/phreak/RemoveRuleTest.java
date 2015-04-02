@@ -597,6 +597,7 @@ public class RemoveRuleTest {
 
         wm.insert(new E(1));
         wm.insert(new E(2));
+        wm.flushPropagations();
 
         RuleTerminalNode rtn1 = getRtn( "r1", kbase1 );
         RuleTerminalNode rtn2 = getRtn( "r2", kbase1 );

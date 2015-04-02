@@ -40,6 +40,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -252,11 +253,26 @@ public class EntryPointNode extends ObjectSource
         }
 
         ObjectTypeNode[] cachedNodes = objectTypeConf.getObjectTypeNodes();
+        List<ObjectTypeNode> allowedNodes = null;
 
         for (int i = 0, length = cachedNodes.length; i < length; i++) {
-            cachedNodes[i].assertObject(handle,
-                                        context,
-                                        workingMemory);
+            if (cachedNodes[i].isAssertAllowed(handle)) {
+                cachedNodes[i].assertObject(handle,
+                                            context,
+                                            workingMemory);
+                if (allowedNodes != null) {
+                    allowedNodes.add(cachedNodes[i]);
+                }
+            } else {
+                if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE) {
+                    if (allowedNodes == null) {
+                        allowedNodes = new ArrayList<ObjectTypeNode>();
+                    }
+                    for (int j = 0; j < i; j++) {
+                        allowedNodes.add(cachedNodes[j]);
+                    }
+                }
+            }
         }
 
         if (objectTypeConf.getConcreteObjectTypeNode() == null && context.getReaderContext() == null) {
@@ -268,7 +284,11 @@ public class EntryPointNode extends ObjectSource
         }
 
         if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE && cachedNodes.length > 0) {
-            ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(cachedNodes, handle, context));
+            if (allowedNodes != null) {
+                ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(allowedNodes.toArray(new ObjectTypeNode[allowedNodes.size()]), handle, context));
+            } else {
+                ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(cachedNodes, handle, context));
+            }
             ((InternalAgenda)workingMemory.getAgenda()).notifyHalt();
         }
     }

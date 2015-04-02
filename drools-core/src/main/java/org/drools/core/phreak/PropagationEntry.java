@@ -2,10 +2,13 @@ package org.drools.core.phreak;
 
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.factmodel.traits.TraitProxy;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.ObjectTypeConf;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.spi.PropagationContext;
+
+import java.util.BitSet;
 
 public interface PropagationEntry {
 
@@ -39,16 +42,34 @@ public interface PropagationEntry {
         private final InternalFactHandle handle;
         private final PropagationContext context;
         private final ObjectTypeConf objectTypeConf;
+        private final BitSet vetoMask;
 
         public Update(EntryPointNode epn, InternalFactHandle handle, PropagationContext context, ObjectTypeConf objectTypeConf) {
             this.epn = epn;
             this.handle = handle;
             this.context = context;
             this.objectTypeConf = objectTypeConf;
+            if (handle.isTraiting()) {
+                BitSet originalMask = ((TraitProxy) handle.getObject()).getTypeFilter();
+                if (originalMask != null) {
+                    this.vetoMask = new BitSet();
+                    this.vetoMask.or(originalMask);
+                } else {
+                    this.vetoMask = null;
+                }
+            } else {
+                this.vetoMask = null;
+            }
         }
 
         public void propgate(InternalWorkingMemory wm) {
+            if (vetoMask != null) {
+                ((TraitProxy) handle.getObject()).setTypeFilter(vetoMask);
+            }
             epn.propagateModify(handle, context, objectTypeConf, wm);
+            if (vetoMask != null) {
+                ((TraitProxy) handle.getObject()).setTypeFilter(null);
+            }
         }
     }
 

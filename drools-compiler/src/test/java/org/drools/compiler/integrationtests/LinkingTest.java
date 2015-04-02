@@ -1,30 +1,42 @@
 package org.drools.compiler.integrationtests;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.kie.api.runtime.rule.FactHandle;
 import org.drools.core.base.ClassObjectType;
-import org.drools.core.common.*;
+import org.drools.core.common.AgendaItem;
+import org.drools.core.common.InternalAgenda;
+import org.drools.core.common.InternalAgendaGroup;
+import org.drools.core.common.MemoryFactory;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.phreak.SegmentUtilities;
-import org.drools.core.reteoo.*;
+import org.drools.core.reteoo.BetaMemory;
+import org.drools.core.reteoo.EvalConditionNode;
+import org.drools.core.reteoo.ExistsNode;
+import org.drools.core.reteoo.JoinNode;
+import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode.LiaNodeMemory;
+import org.drools.core.reteoo.NotNode;
+import org.drools.core.reteoo.ObjectTypeNode;
+import org.drools.core.reteoo.PathMemory;
+import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
+import org.drools.core.reteoo.RightInputAdapterNode;
+import org.drools.core.reteoo.RuleTerminalNode;
+import org.drools.core.reteoo.SegmentMemory;
 import org.junit.Test;
-import org.kie.internal.KnowledgeBase;
 import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.rule.FactHandle;
+import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.api.io.ResourceType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
 public class LinkingTest {
     public static class A {
@@ -308,6 +320,7 @@ public class LinkingTest {
         wm.insert( new B() );
         wm.insert( new C() );
         wm.insert( new D() );
+        wm.flushPropagations();
 
         BetaMemory bm = null;
 
@@ -339,8 +352,9 @@ public class LinkingTest {
         assertTrue( rs2.isRuleLinked() );
         assertFalse( rs3.isRuleLinked() ); // no E yet
 
-
         wm.insert( new E() );
+        wm.flushPropagations();
+
         BetaMemory bm6 = ( BetaMemory ) wm.getNodeMemory( existsNode3 );
         BetaMemory bm7 = ( BetaMemory ) wm.getNodeMemory( joinNodeE );
         assertEquals(1, bm6.getNodePosMaskBit() );
@@ -417,32 +431,40 @@ public class LinkingTest {
 
         FactHandle fhc = wm.insert(  new C() );
         FactHandle fhd = wm.insert(  new D() );
+        wm.flushPropagations();
 
         assertEquals( 1, existsBm.getSegmentMemory().getLinkedNodeMask() );  // exists is start of new segment
 
         wm.retract( fhd );
+        wm.flushPropagations();
         assertEquals( 0, existsBm.getSegmentMemory().getLinkedNodeMask() );
 
         PathMemory rs = (PathMemory) wm.getNodeMemory( rtn );
         assertFalse( rs.isRuleLinked() );
 
         wm.insert(  new A() );
+        wm.flushPropagations();
+        assertFalse(rs.isRuleLinked());
+        wm.insert(new B());
+        wm.flushPropagations();
+        assertFalse(rs.isRuleLinked());
+        wm.insert(new E());
+        wm.flushPropagations();
         assertFalse( rs.isRuleLinked() );
-        wm.insert(  new B() );
-        assertFalse( rs.isRuleLinked() );
-        wm.insert(  new E() );
-        assertFalse( rs.isRuleLinked() );
-
 
         wm.insert(  new D() );
+        wm.flushPropagations();
         assertTrue( rs.isRuleLinked() );
 
         wm.retract(  fhc );
+        wm.flushPropagations();
         assertFalse( rs.isRuleLinked() );
 
         wm.insert(  new C() );
+        wm.flushPropagations();
         assertTrue( rs.isRuleLinked() );
     }
+
     @Test
     public void testNonReactiveSubNetworkInShareMasks() throws Exception {
         String str = "";
@@ -499,7 +521,8 @@ public class LinkingTest {
 
         BetaMemory bm =  ( BetaMemory ) wm.getNodeMemory(dNode);
         assertNull(bm.getSegmentMemory()); // check lazy initialization
-        wm.insert(  new D() );
+        wm.insert(new D());
+        wm.flushPropagations();
         assertEquals(2, bm.getSegmentMemory().getAllLinkedMaskTest()); // only D can be linked in
     }
 
@@ -648,12 +671,15 @@ public class LinkingTest {
 
         FactHandle fhE1 = wm.insert(  new E() );
         FactHandle fhE2 = wm.insert(  new E() );
+        wm.flushPropagations();
         assertTrue( rs.isRuleLinked() );
 
         wm.retract( fhE1 );
+        wm.flushPropagations();
         assertTrue( rs.isRuleLinked() );
 
         wm.retract( fhE2 );
+        wm.flushPropagations();
         assertFalse( rs.isRuleLinked() );
     }
 
@@ -717,6 +743,7 @@ public class LinkingTest {
         wm.insert(  new C() );
         wm.insert(  new D() );
         wm.insert(  new G() );
+        wm.flushPropagations();
 
         LiaNodeMemory liaMem = ( LiaNodeMemory ) wm.getNodeMemory( liaNode );
         BetaMemory bMem = ( BetaMemory )   wm.getNodeMemory( bNode );
@@ -778,12 +805,15 @@ public class LinkingTest {
         assertEquals( 0, exists2Mem.getNodePosMaskBit() );
         FactHandle fhE1 = wm.insert(  new E() ); // insert to lazy initialize exists2Mem segment
         FactHandle fhF1 = wm.insert(  new F() );
+        wm.flushPropagations();
+
         assertEquals( 1, exists2Mem.getNodePosMaskBit() );
         assertEquals( 6, riaMem1.getRiaPathMemory().getAllLinkedMaskTest() ); // only cares that the segment for c, E and exists1 are set, ignores the outer first segment
         assertEquals( 6, riaMem1.getRiaPathMemory().getLinkedSegmentMask() ); // E and F are inerted, so 6
         wm.delete(fhE1);
         wm.delete(fhF1);
-        assertEquals( 2, riaMem1.getRiaPathMemory().getLinkedSegmentMask() ); // E deleted
+        wm.flushPropagations();
+        assertEquals(2, riaMem1.getRiaPathMemory().getLinkedSegmentMask()); // E deleted
 
         // assert e, f are in the same segment, and that this is the only segment in ria2 memory
         assertNotNull( null, eMem.getSegmentMemory() ); //subnetworks are recursively created, so segment already exists
@@ -801,6 +831,7 @@ public class LinkingTest {
 
         fhE1 = wm.insert(  new E() );
         wm.insert(  new F() );
+        wm.flushPropagations();
 
         assertTrue( rs.isRuleLinked() ); //E and F are now inserted yet, so rule is linked
         assertEquals( 3, rs.getAllLinkedMaskTest() );
@@ -817,7 +848,8 @@ public class LinkingTest {
         assertEquals( 4, riaMem2.getRiaPathMemory().getAllLinkedMaskTest() );
         assertEquals( 4, riaMem2.getRiaPathMemory().getLinkedSegmentMask() );
 
-        wm.delete( fhE1 );
+        wm.delete( fhE1);
+        wm.flushPropagations();
 
         // retest bits
         assertFalse( rs.isRuleLinked() );
@@ -881,7 +913,7 @@ public class LinkingTest {
         for ( int i = 0; i < 29; i++ ) {
             wm.insert(  new C(i) );
         }        
-        //StatefulKnowledgeSession ksession = kbase.newKieSession();
+        wm.flushPropagations();
         
         LeftInputAdapterNode aNode = (LeftInputAdapterNode) aotn.getSinkPropagator().getSinks()[0];                        
         JoinNode bNode = ( JoinNode) aNode.getSinkPropagator().getSinks()[0];        
@@ -1093,7 +1125,8 @@ public class LinkingTest {
         assertEquals( 5, amem.getSegmentMemory().getLinkedNodeMask() );        
         
         // NotNode links back in again, which is allowed because it has no variable constraints
-        wm.retract( fhb );
+        wm.retract( fhb);
+        wm.flushPropagations();
         assertEquals( 7, amem.getSegmentMemory().getLinkedNodeMask() );
         wm.fireAllRules();
         assertEquals( 1, list.size() ); 
@@ -1112,6 +1145,8 @@ public class LinkingTest {
         for ( FactHandle fh : handles ) {
             wm.retract( fh );
         }
+        wm.flushPropagations();
+
         assertEquals( 7, amem.getSegmentMemory().getLinkedNodeMask() );
         wm.fireAllRules();
         assertEquals( 1, list.size() );        
@@ -1170,13 +1205,15 @@ public class LinkingTest {
         FactHandle fha = wm.insert(  new A() );
         FactHandle fhb = wm.insert(  new B(1) );
         FactHandle fhc = wm.insert(  new C() );
-        
+        wm.flushPropagations();
+
         // All nodes are linked in
         assertEquals( 7, amem.getSegmentMemory().getLinkedNodeMask() );
         
         // NotNode does not unlink, due to variable constraint
-        wm.retract( fhb );
-        assertEquals( 7, amem.getSegmentMemory().getLinkedNodeMask() );        
+        wm.retract( fhb);
+        wm.flushPropagations();
+        assertEquals( 7, amem.getSegmentMemory().getLinkedNodeMask() );
     }    
     
     @Test
@@ -1345,6 +1382,7 @@ public class LinkingTest {
         assertEquals( 1, liaNode.getSinkPropagator().size() );
 
         wm.insert( new A() );
+        wm.flushPropagations();
 
         NotNode notNode = ( NotNode) liaNode.getSinkPropagator().getSinks()[0];
         JoinNode cNode = ( JoinNode) notNode.getSinkPropagator().getSinks()[0];
@@ -1361,7 +1399,8 @@ public class LinkingTest {
         assertFalse( sm.isSegmentLinked() );
         assertFalse( pmem.isRuleLinked() );
 
-        wm.insert( new C() );
+        wm.insert( new C());
+        wm.flushPropagations();
         assertEquals( 7, sm.getLinkedNodeMask() );  // only 5 is needed to link, the 'not' turns on but it has no unfleunce either way
         assertTrue( sm.isSegmentLinked() );
         assertTrue( pmem.isRuleLinked() );
@@ -1406,6 +1445,7 @@ public class LinkingTest {
         assertEquals( 1, liaNode.getSinkPropagator().size() );
 
         wm.insert( new A() );
+        wm.flushPropagations();
 
         NotNode notNode = ( NotNode) liaNode.getSinkPropagator().getSinks()[0];
         JoinNode cNode = ( JoinNode) notNode.getSinkPropagator().getSinks()[0];
@@ -1423,6 +1463,7 @@ public class LinkingTest {
         assertFalse( pmem.isRuleLinked() );
 
         wm.insert( new C() );
+        wm.flushPropagations();
         assertEquals( 7, sm.getLinkedNodeMask() );
         assertTrue( sm.isSegmentLinked() );
         assertTrue( pmem.isRuleLinked() );
@@ -1662,6 +1703,7 @@ public class LinkingTest {
             wm.insert( new C() );
         }
         wm.insert( new D() );
+        wm.flushPropagations();
 
         InternalAgenda agenda = ( InternalAgenda ) wm.getAgenda();
         InternalAgendaGroup group = (InternalAgendaGroup) agenda.getNextFocus();

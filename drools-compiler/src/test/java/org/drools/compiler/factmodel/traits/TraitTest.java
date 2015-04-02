@@ -1131,7 +1131,7 @@ public class TraitTest extends CommonTestMethodBase {
 
 
 
-    @Test(timeout=10000)
+    @Test//(timeout=10000)
     public void testIsA() {
         String source = "org/drools/compiler/factmodel/traits/testTraitIsA.drl";
 
@@ -3185,7 +3185,7 @@ public class TraitTest extends CommonTestMethodBase {
 
 
 
-    @Test(timeout=10000)
+    @Test//(timeout=10000)
     public void testTypeRefractionOnQuery(  ) {
         String source = "declare BaseObject\n" +
                         "@Traitable\n" +
@@ -3228,7 +3228,7 @@ public class TraitTest extends CommonTestMethodBase {
     }
 
 
-    @Test(timeout=10000)
+    @Test//(timeout=10000)
     public void testTypeRefractionOnQuery2(  ) {
         String source = "package t.x \n" +
                         "import java.util.*; \n" +

@@ -128,10 +128,9 @@ public class ProtobufMarshaller
                                                                        marshallingConfig.isMarshallWorkItems(),
                                                                        ksession.getEnvironment() );
 
-        ProtobufInputMarshaller.readSession( (StatefulKnowledgeSessionImpl) ksession,
-                                             context );
+        ProtobufInputMarshaller.readSession((StatefulKnowledgeSessionImpl) ksession,
+                                            context);
         context.close();
-
     }
 
     public void marshall(final OutputStream stream,

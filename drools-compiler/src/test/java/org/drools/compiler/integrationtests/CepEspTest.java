@@ -5612,8 +5612,6 @@ public class CepEspTest extends CommonTestMethodBase {
         helper.addContent(drl, ResourceType.DRL);
         KieSession ksession = helper.build(EventProcessingOption.STREAM).newKieSession(sessionConfig, null);
 
-        ReteDumper.dumpRete(ksession);
-
         List<Integer> list = new ArrayList<Integer>();
         ksession.setGlobal("list", list);
 
@@ -5666,8 +5664,6 @@ public class CepEspTest extends CommonTestMethodBase {
         KieHelper helper = new KieHelper();
         helper.addContent(drl, ResourceType.DRL);
         KieSession ksession = helper.build(EventProcessingOption.STREAM).newKieSession(sessionConfig, null);
-
-        ReteDumper.dumpRete(ksession);
 
         List<Integer> list = new ArrayList<Integer>();
         ksession.setGlobal("list", list);

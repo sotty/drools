@@ -482,6 +482,7 @@ public class DefaultAgenda
         TruthMaintenanceSystemHelper.removeLogicalDependencies( activation,
                                                                 context,
                                                                 rtn.getRule() );
+        workingMemory.flushPropagations();
     }
 
     /*
