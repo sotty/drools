@@ -253,26 +253,11 @@ public class EntryPointNode extends ObjectSource
         }
 
         ObjectTypeNode[] cachedNodes = objectTypeConf.getObjectTypeNodes();
-        List<ObjectTypeNode> allowedNodes = null;
 
         for (int i = 0, length = cachedNodes.length; i < length; i++) {
-            if (cachedNodes[i].isAssertAllowed(handle)) {
-                cachedNodes[i].assertObject(handle,
-                                            context,
-                                            workingMemory);
-                if (allowedNodes != null) {
-                    allowedNodes.add(cachedNodes[i]);
-                }
-            } else {
-                if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE) {
-                    if (allowedNodes == null) {
-                        allowedNodes = new ArrayList<ObjectTypeNode>();
-                    }
-                    for (int j = 0; j < i; j++) {
-                        allowedNodes.add(cachedNodes[j]);
-                    }
-                }
-            }
+            cachedNodes[i].assertObject(handle,
+                                        context,
+                                        workingMemory);
         }
 
         if (objectTypeConf.getConcreteObjectTypeNode() == null && context.getReaderContext() == null) {
@@ -284,11 +269,7 @@ public class EntryPointNode extends ObjectSource
         }
 
         if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE && cachedNodes.length > 0) {
-            if (allowedNodes != null) {
-                ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(allowedNodes.toArray(new ObjectTypeNode[allowedNodes.size()]), handle, context));
-            } else {
-                ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(cachedNodes, handle, context));
-            }
+            ((StatefulKnowledgeSessionImpl) workingMemory).addPropagation(new PropagationEntry.Insert(cachedNodes, handle, context));
             ((InternalAgenda)workingMemory.getAgenda()).notifyHalt();
         }
     }
@@ -305,7 +286,12 @@ public class EntryPointNode extends ObjectSource
         if (StatefulKnowledgeSessionImpl.IS_MULTITHREAD_MODE) {
             ((StatefulKnowledgeSessionImpl) wm).addPropagation(new PropagationEntry.Update(this, handle, pctx, objectTypeConf));
         } else {
-            propagateModify(handle, pctx, objectTypeConf, wm);
+            if ( ! handle.isTraiting() ) {
+                propagateModify( handle, pctx, objectTypeConf, wm );
+            } else {
+                // TODO Re harmonize the two methods
+                propagateTraitModify( handle, pctx, objectTypeConf, wm );
+            }
         }
     }
 
@@ -355,6 +341,64 @@ public class EntryPointNode extends ObjectSource
                     doDeleteObject(pctx, wm, leftTuple);
                 }
             }
+        }
+        modifyPreviousTuples.retractTuples(pctx, wm);
+    }
+
+
+    // TODO check and re-harmonize with normal propagate modify
+    public void propagateTraitModify(InternalFactHandle handle, PropagationContext pctx, ObjectTypeConf objectTypeConf, InternalWorkingMemory wm) {
+        ObjectTypeNode[] cachedNodes = objectTypeConf.getObjectTypeNodes();
+
+        // make a reference to the previous tuples, then null then on the handle
+        ModifyPreviousTuples modifyPreviousTuples = new ModifyPreviousTuples(handle.getFirstLeftTuple(), handle.getFirstRightTuple(), this );
+        handle.clearLeftTuples();
+        handle.clearRightTuples();
+
+        for ( int i = 0, length = cachedNodes.length; i < length; i++ ) {
+
+            boolean allowed = cachedNodes[i].isModifyAllowed( handle );
+            if ( allowed ) {
+                cachedNodes[ i ].modifyObject( handle,
+                                               modifyPreviousTuples,
+                                               pctx, wm );
+            }
+
+
+            // remove any right tuples that matches the current OTN before continue the modify on the next OTN cache entry
+            if (i < cachedNodes.length - 1) {
+                RightTuple rightTuple = modifyPreviousTuples.peekRightTuple();
+                while ( rightTuple != null &&
+                        ((BetaNode) rightTuple.getRightTupleSink()).getObjectTypeNode() == cachedNodes[i] ) {
+                    modifyPreviousTuples.removeRightTuple();
+
+                    doRightDelete( pctx, wm, rightTuple );
+
+                    rightTuple = modifyPreviousTuples.peekRightTuple();
+                }
+
+
+                LeftTuple leftTuple;
+                ObjectTypeNode otn;
+                while ( true ) {
+                    leftTuple = modifyPreviousTuples.peekLeftTuple();
+                    otn = null;
+                    if (leftTuple != null) {
+                        LeftTupleSink leftTupleSink = leftTuple.getLeftTupleSink();
+                        if (leftTupleSink instanceof LeftTupleSource) {
+                            otn = ((LeftTupleSource)leftTupleSink).getLeftTupleSource().getObjectTypeNode();
+                        } else if (leftTupleSink instanceof RuleTerminalNode) {
+                            otn = ((RuleTerminalNode)leftTupleSink).getObjectTypeNode();
+                        }
+                    }
+
+                    if ( otn == null || cachedNodes[i] != otn ) break;
+
+                    modifyPreviousTuples.removeLeftTuple();
+                    doDeleteObject( pctx, wm, leftTuple );
+                }
+            }
+
         }
         modifyPreviousTuples.retractTuples(pctx, wm);
     }

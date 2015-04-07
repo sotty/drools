@@ -7240,4 +7240,6 @@ public class Misc2Test extends CommonTestMethodBase {
         ksession.insert(new org.drools.compiler.Person("Elizabeth2", 88));
         assertEquals(1, ksession.fireAllRules());
     }
+
+
 }

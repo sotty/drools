@@ -148,6 +148,10 @@ public class ObjectTypeNode extends ObjectSource
         this.dirty = true;
     }
 
+    public boolean isModifyAllowed( InternalFactHandle factHandle ) {
+        return true;
+    }
+
     private static class IdGenerator {
         private final int otnId;
         private int otnIdCounter;
@@ -300,10 +304,6 @@ public class ObjectTypeNode extends ObjectSource
         if ( context.getReaderContext() == null && this.objectType.isEvent() && this.expirationOffset >= 0 && this.expirationOffset != Long.MAX_VALUE ) {
             scheduleExpiration(context, workingMemory, factHandle, expirationOffset, new WorkingMemoryReteExpireAction( factHandle, this ));
         }
-    }
-
-    public boolean isAssertAllowed( InternalFactHandle factHandle ) {
-        return true;
     }
 
     public void propagateAssert(InternalFactHandle factHandle, PropagationContext context, InternalWorkingMemory workingMemory) {

@@ -3,6 +3,7 @@ package org.drools.core.phreak;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.factmodel.traits.TraitProxy;
+import org.drools.core.factmodel.traits.TraitTypeMap;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.ObjectTypeConf;
 import org.drools.core.reteoo.ObjectTypeNode;
@@ -26,7 +27,7 @@ public interface PropagationEntry {
         }
 
         public void propgate(InternalWorkingMemory wm) {
-            for (int i = 0, length = otns.length; i < length; i++) {
+            for (int i = 0, length = otns.length; i < length; i++ ) {
                 otns[i].propagateAssert(handle, context, wm);
             }
         }
@@ -42,35 +43,28 @@ public interface PropagationEntry {
         private final InternalFactHandle handle;
         private final PropagationContext context;
         private final ObjectTypeConf objectTypeConf;
-        private final BitSet vetoMask;
 
         public Update(EntryPointNode epn, InternalFactHandle handle, PropagationContext context, ObjectTypeConf objectTypeConf) {
             this.epn = epn;
             this.handle = handle;
             this.context = context;
             this.objectTypeConf = objectTypeConf;
-            if (handle.isTraiting()) {
-                BitSet originalMask = ((TraitProxy) handle.getObject()).getTypeFilter();
-                if (originalMask != null) {
-                    this.vetoMask = new BitSet();
-                    this.vetoMask.or(originalMask);
-                } else {
-                    this.vetoMask = null;
-                }
-            } else {
-                this.vetoMask = null;
-            }
         }
 
         public void propgate(InternalWorkingMemory wm) {
-            if (vetoMask != null) {
-                ((TraitProxy) handle.getObject()).setTypeFilter(vetoMask);
-            }
-            epn.propagateModify(handle, context, objectTypeConf, wm);
-            if (vetoMask != null) {
-                ((TraitProxy) handle.getObject()).setTypeFilter(null);
+            if ( handle.isTraiting() ) {
+                // TODO Harmonize the two propagate methods
+                epn.propagateTraitModify( handle, context, objectTypeConf, wm);
+            } else {
+                epn.propagateModify(handle, context, objectTypeConf, wm);
             }
         }
+
+        @Override
+        public String toString() {
+            return "Update of " + handle.getObject();
+        }
+
     }
 
     public static class Delete implements PropagationEntry {
@@ -89,5 +83,11 @@ public interface PropagationEntry {
         public void propgate(InternalWorkingMemory wm) {
             epn.propagateRetract(handle, context, objectTypeConf, wm);
         }
+
+        @Override
+        public String toString() {
+            return "Delete of " + handle.getObject();
+        }
+
     }
 }
