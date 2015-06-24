@@ -2734,7 +2734,7 @@ public class DRL6Parser extends AbstractDRLParser implements DRLParser {
      * @return
      * @throws org.antlr.runtime.RecognitionException
      */
-    private BaseDescr lhsForall(CEDescrBuilder<?, ?> ce) throws RecognitionException {
+    BaseDescr lhsForall(CEDescrBuilder<?, ?> ce) throws RecognitionException {
         ForallDescrBuilder<?> forall = helper.start(ce,
                 ForallDescrBuilder.class,
                 null);
